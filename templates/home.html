@@ -1,47 +1,323 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Boston Housing Price Prediction</title>
-	<link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
-	<link href='https://fonts.googleapis.com/css?family=Arimo' rel='stylesheet' type='text/css'>
-	<link href='https://fonts.googleapis.com/css?family=Hind:300' rel='stylesheet' type='text/css'>
-	<link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
+	<link href='https://fonts.googleapis.com/css?family=Inter:400,500,600' rel='stylesheet' type='text/css'>
+	
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+			background: #f5f7fa;
+			min-height: 100vh;
+			padding: 40px 20px;
+			color: #1a1a1a;
+		}
+
+		.container {
+			max-width: 1000px;
+			margin: 0 auto;
+			background: white;
+			border-radius: 8px;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+			padding: 48px;
+		}
+
+		header {
+			margin-bottom: 40px;
+			border-bottom: 1px solid #e5e7eb;
+			padding-bottom: 24px;
+		}
+
+		h1 {
+			font-size: 28px;
+			font-weight: 600;
+			color: #111827;
+			margin-bottom: 8px;
+		}
+
+		.subtitle {
+			color: #6b7280;
+			font-size: 15px;
+			font-weight: 400;
+		}
+
+		.info-box {
+			background: #f9fafb;
+			border: 1px solid #e5e7eb;
+			border-radius: 6px;
+			padding: 16px 20px;
+			margin-bottom: 32px;
+		}
+
+		.info-box p {
+			color: #4b5563;
+			font-size: 14px;
+			line-height: 1.6;
+		}
+
+		.form-section {
+			margin-bottom: 32px;
+		}
+
+		.section-title {
+			font-size: 16px;
+			font-weight: 600;
+			color: #374151;
+			margin-bottom: 20px;
+			padding-bottom: 8px;
+			border-bottom: 1px solid #e5e7eb;
+		}
+
+		.form-grid {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 24px;
+			margin-bottom: 32px;
+		}
+
+		.input-group {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.input-group label {
+			color: #374151;
+			font-weight: 500;
+			margin-bottom: 8px;
+			font-size: 14px;
+		}
+
+		.label-description {
+			color: #9ca3af;
+			font-size: 12px;
+			font-weight: 400;
+			margin-top: 2px;
+		}
+
+		.input-group input {
+			padding: 10px 12px;
+			border: 1px solid #d1d5db;
+			border-radius: 6px;
+			font-size: 14px;
+			transition: all 0.2s;
+			font-family: 'Inter', sans-serif;
+			background: white;
+		}
+
+		.input-group input:focus {
+			outline: none;
+			border-color: #3b82f6;
+			box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+		}
+
+		.input-group input::placeholder {
+			color: #9ca3af;
+		}
+
+		.btn-submit {
+			width: 100%;
+			padding: 14px 24px;
+			background: #2563eb;
+			color: white;
+			border: none;
+			border-radius: 6px;
+			font-size: 15px;
+			font-weight: 500;
+			cursor: pointer;
+			transition: background 0.2s;
+			font-family: 'Inter', sans-serif;
+		}
+
+		.btn-submit:hover {
+			background: #1d4ed8;
+		}
+
+		.btn-submit:active {
+			background: #1e40af;
+		}
+
+		.prediction-result {
+			margin-top: 32px;
+			padding: 20px 24px;
+			background: #eff6ff;
+			border: 1px solid #bfdbfe;
+			border-left: 4px solid #3b82f6;
+			border-radius: 6px;
+			color: #1e40af;
+			font-size: 16px;
+			font-weight: 500;
+		}
+
+		.prediction-result.error {
+			background: #fef2f2;
+			border-color: #fecaca;
+			border-left-color: #ef4444;
+			color: #991b1b;
+		}
+
+		@media (max-width: 1024px) {
+			.form-grid {
+				grid-template-columns: repeat(2, 1fr);
+			}
+		}
+
+		@media (max-width: 640px) {
+			.container {
+				padding: 32px 24px;
+			}
+
+			h1 {
+				font-size: 24px;
+			}
+
+			.form-grid {
+				grid-template-columns: 1fr;
+				gap: 20px;
+			}
+		}
+	</style>
 </head>
 
 <body>
-	<div class="login">
-		<h1>Boston House Price Prediction</h1>
+	<div class="container">
+		<header>
+			<h1>Boston Housing Price Prediction</h1>
+			<p class="subtitle">Machine learning model for real estate price estimation</p>
+		</header>
 
-		<!-- Main Input For Receiving Query to our ML -->
-		<form action="{{ url_for('predict')}}" method="post">
-			<input type="text" name="CRIM" placeholder="CRIM" required="required" /><br>
-			<input type="text" name="ZN" placeholder="ZN" required="required" /><br>
-			<input type="text" name="INDUS" placeholder="INDUS" required="required" /><br>
-			<input type="text" name="CHAS" placeholder="CHAS" required="required" /><br>
-			<input type="text" name="NOX" placeholder="NOX" required="required" /><br>
-			<input type="text" name="RM" placeholder="RM" required="required" /><br>
-			<input type="text" name="Age" placeholder="Age" required="required" /><br>
-			<input type="text" name="DIS" placeholder="DIS" required="required" /><br>
-			<input type="text" name="RAD" placeholder="RAD" required="required" /><br>
-			<input type="text" name="TAX" placeholder="TAX" required="required" /><br>
-			<input type="text" name="PTRATIO" placeholder="PTRATIO" required="required" /><br>
-			<input type="text" name="B" placeholder="B" required="required" /><br>
-			<input type="text" name="LSTAT" placeholder="LSTAT" required="required" /><br>
+		<div class="info-box">
+			<p>Enter property characteristics below to receive an estimated house price. All fields are required. The prediction is based on historical Boston housing data and advanced regression algorithms.</p>
+		</div>
 
+		<form action="{{ url_for('predict') }}" method="post">
+			<div class="form-section">
+				<h2 class="section-title">Property Features</h2>
+				
+				<div class="form-grid">
+					<div class="input-group">
+						<label for="CRIM">
+							CRIM
+							<span class="label-description">Crime rate per capita</span>
+						</label>
+						<input type="number" id="CRIM" name="CRIM" placeholder="0.00632" required />
+					</div>
 
+					<div class="input-group">
+						<label for="ZN">
+							ZN
+							<span class="label-description">Residential land zoned (%)</span>
+						</label>
+						<input type="number" id="ZN" name="ZN" placeholder="18.0" required />
+					</div>
 
-			<button type="submit" class="btn btn-primary btn-block btn-large">Predict</button>
+					<div class="input-group">
+						<label for="INDUS">
+							INDUS
+							<span class="label-description">Non-retail business acres (%)</span>
+						</label>
+						<input type="number" id="INDUS" name="INDUS" placeholder="2.31" required />
+					</div>
+
+					<div class="input-group">
+						<label for="CHAS">
+							CHAS
+							<span class="label-description">Charles River (0 or 1)</span>
+						</label>
+						<input type="number" step="1" id="CHAS" name="CHAS" placeholder="0" min="0" max="1" required />
+					</div>
+
+					<div class="input-group">
+						<label for="NOX">
+							NOX
+							<span class="label-description">Nitric oxide concentration</span>
+						</label>
+						<input type="number" id="NOX" name="NOX" placeholder="0.538" required />
+					</div>
+
+					<div class="input-group">
+						<label for="RM">
+							RM
+							<span class="label-description">Average rooms per dwelling</span>
+						</label>
+						<input type="number" id="RM" name="RM" placeholder="6.575" required />
+					</div>
+
+					<div class="input-group">
+						<label for="AGE">
+							AGE
+							<span class="label-description">Proportion built before 1940 (%)</span>
+						</label>
+						<input type="number" id="AGE" name="AGE" placeholder="65.2" required />
+					</div>
+
+					<div class="input-group">
+						<label for="DIS">
+							DIS
+							<span class="label-description">Distance to employment centers</span>
+						</label>
+						<input type="number" id="DIS" name="DIS" placeholder="4.09" required />
+					</div>
+
+					<div class="input-group">
+						<label for="RAD">
+							RAD
+							<span class="label-description">Highway accessibility index</span>
+						</label>
+						<input type="number" step="1" id="RAD" name="RAD" placeholder="1" required />
+					</div>
+
+					<div class="input-group">
+						<label for="TAX">
+							TAX
+							<span class="label-description">Property tax rate per $10k</span>
+						</label>
+						<input type="number" step="1" id="TAX" name="TAX" placeholder="296" required />
+					</div>
+
+					<div class="input-group">
+						<label for="PTRATIO">
+							PTRATIO
+							<span class="label-description">Pupil-teacher ratio</span>
+						</label>
+						<input type="number" step="0.1" id="PTRATIO" name="PTRATIO" placeholder="15.3" required />
+					</div>
+
+					<div class="input-group">
+						<label for="B">
+							B
+							<span class="label-description">Proportion of Black residents</span>
+						</label>
+						<input type="number" step="0.1" id="B" name="B" placeholder="396.9" required />
+					</div>
+
+					<div class="input-group">
+						<label for="LSTAT">
+							LSTAT
+							<span class="label-description">Lower status population (%)</span>
+						</label>
+						<input type="number" id="LSTAT" name="LSTAT" placeholder="4.98" required />
+					</div>
+				</div>
+			</div>
+
+			<button type="submit" class="btn-submit">Calculate Price Prediction</button>
 		</form>
 
-		<br>
-		<br>
-
-
+		{% if prediction_text %}
+		<div class="prediction-result {% if 'Error' in prediction_text %}error{% endif %}">
+			{{ prediction_text }}
+		</div>
+		{% endif %}
 	</div>
-	{{prediction_text}}
-
 </body>
 
 </html>

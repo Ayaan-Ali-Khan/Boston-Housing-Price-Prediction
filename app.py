@@ -31,21 +31,14 @@ def predict():
     data = [float(x) for x in request.form.values()]
     CRIM, ZN, INDUS, CHAS, NOX, RM, AGE, DIS, RAD, TAX, PTRATIO, B, LSTAT = data
     LSTAT = np.log(LSTAT)
-    CRIM = np.log(CRIM)
-    DIS = np.log(DIS)
+    CRIM = np.log1p(CRIM)
     RM_squared = RM**2
-    LSTAT_squared = LSTAT**2
     RM_LSTAT = RM*LSTAT
-    NOX_DIS = NOX*DIS
-    INDUS_NOX = INDUS*NOX
-    TAX_RAD = TAX*RAD
-    ROOMS_PER_DWELLING = (RM / AGE)
-    RAD_binary = int(RAD >= 24)
-    new_data = [CRIM, ZN, INDUS, CHAS, NOX, RM, AGE, DIS, RAD, TAX, PTRATIO, B, LSTAT, RM_squared, LSTAT_squared, RM_LSTAT, NOX_DIS, INDUS_NOX, TAX_RAD, ROOMS_PER_DWELLING, RAD_binary]
+    new_data = [CRIM, ZN, INDUS, CHAS, NOX, RM, AGE, DIS, RAD, TAX, PTRATIO, B, LSTAT, RM_squared, RM_LSTAT]
     scaled_input = scaler.transform(np.array(list(new_data)).reshape(1, -1))
     print(scaled_input)
     output = model.predict(scaled_input)[0]
-    return render_template("home.html", prediction_text="The predicted House price is {}".format(output))
+    return render_template("home.html", prediction_text=f"The predicted House price is ${output:.4f}k")
 
 if __name__ == "__main__":
     app.run(debug=True)
